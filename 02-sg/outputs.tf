@@ -4,8 +4,3 @@ output "vpc_id" {
 
   
 }
-
-output "mongo_sg_id" {
-    value = module.mongodb.sg_id
-  
-}

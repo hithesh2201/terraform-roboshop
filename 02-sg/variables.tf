@@ -47,3 +47,14 @@
 #     default = local.user.sg_id
   
 # }
+
+
+# variable "sg_ids" {
+#   type    = list
+#   default = [module.mongodb.sg_id,module.redis.sg_id,module.mysql.sg_id,module.rabbitmq.sg_id,module.catalogue.sg_id,module.user.sg_id,module.cart.sg_id,module.shipping.sg_id,module.payments.sg_id,module.dispatch.sg_id,module.web.sg_id]  # Replace these with your actual security group IDs
+# }
+
+# variable "mongodb_sg_id" {
+#   default = data.aws_ssm_parameter.mongo_sg_id.value
+# }
+

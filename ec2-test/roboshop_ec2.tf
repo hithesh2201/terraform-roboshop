@@ -19,3 +19,34 @@ resource "aws_route53_record" "www" {
   ttl     = 1
   records = [each.key == "web" ? each.value.public_ip : each.value.private_ip]
 }
+
+resource "aws_instance" "ansible_server" {
+  ami           = "ami-03265a0778a880afb"
+   instance_type = each.value[0]
+   subnet_id = "subnet-0edf18e45106024f4"
+   vpc_security_group_ids =  [aws_security_group.ansible_server.id]
+  tags = merge(
+                {Name ="ansible-server"},
+                local.common_tags      # { {},{},{},{}}
+                )
+}
+
+
+resource "aws_security_group" "ansible_server" {
+  name        = "ansible-master"
+  description = "Security group allowing SSH traffic only"
+
+  ingress {
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # Allow SSH traffic from anywhere
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1" # Allow all outbound traffic
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}

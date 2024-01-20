@@ -6,6 +6,24 @@ module "mongodb" {
   
 }
 
+module "vpn" {
+    source = "../../terraform-sg"
+    sg_name = "${local.project_name}-${local.env}-vpn"
+    sg_description = "${local.project_name}-${local.env}-vpn"
+    vpc_id =data.aws_vpc.default.id
+  
+}
+
+resource "aws_security_group_rule" "allowing_vpn_to_all" {
+  count=length(local.sg_ids)
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  security_group_id = local.sg_ids[count.index]
+  source_security_group_id = module.vpn.sg_id
+   description              = "Inbound Rule to connect with vpn"
+}
 module "redis" {
     source = "../../terraform-sg"
     sg_name = "${local.project_name}-${local.env}-redis"
@@ -229,6 +247,16 @@ resource "aws_security_group_rule" "web_http" {
   description       = "Inbound Rule from http"
 }
 
+resource "aws_security_group_rule" "vpn_from_public" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "tcp"
+  security_group_id = module.vpn.sg_id
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Inbound Rule from http"
+}
+
 resource "aws_security_group_rule" "web_https" {
   type              = "ingress"
   from_port         = 443
@@ -249,6 +277,17 @@ resource "aws_security_group_rule" "web_ssh" {
   description       = "Inbound Rule from ssh"
 }
 
+# data "aws_security_groups" "existing_security_groups" {}
+
+# resource "aws_security_group_rule" "allow_ssh" {
+#   for_each = data.aws_security_groups.existing_security_groups.ids
+
+#   type        = "ingress"
+#   from_port   = 22
+#   to_port     = 22
+#   protocol    = "tcp"
+#   security_group_id = each.value
+# }
 
 
 
